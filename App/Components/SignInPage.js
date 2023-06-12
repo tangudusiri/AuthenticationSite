@@ -97,7 +97,6 @@ const SignIn = ({
            .then((response) => response.json())
            .then((responseData) => {
             console.log('res...............',JSON.stringify(responseData))
-           })
             if(responseData.statusCode === 200){
               setSubmit(!submit)
               successToast()
@@ -112,7 +111,7 @@ const SignIn = ({
               setUserName('')
               setPassword('')
             }
-          //  })
+           })
         //    setSubmit(!submit)
         //    successToast()
         //    setTimeout(()=>{
