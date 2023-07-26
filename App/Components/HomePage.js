@@ -1,19 +1,29 @@
 import React,{useState,useEffect} from "react";
-import { ScrollView, Text, TextInput, TouchableOpacity, View, FlatList} from "react-native";
+import { 
+  ScrollView, 
+  Text, 
+  TextInput, 
+  TouchableOpacity, 
+  View, 
+  FlatList,
+  LogBox} from "react-native";
 import Search from 'react-native-vector-icons/Feather';
 import LogOut from 'react-native-vector-icons/AntDesign';
 import styles from "./styles";
-import { LogBox } from "react-native";
-const DashBoard = ({navigation, route}) =>{ 
-    const val = route?.params?.name.split('@')
+import { connect } from "react-redux";
+import actions from '../redux/actions';
+const { logout } = actions;
+const DashBoard = ({user, logout, testID}) =>{ 
+    // const val = route?.params?.name.split('@')
     const [data,setData] = useState([])
 		const [filter,setFilter] = useState('')
     const getData=async()=>{
        await fetch('https://jsonplaceholder.typicode.com/users')
         .then(response=> response.json())
         .then(data=>setData(data));
-        // console.log('json...........',JSON.stringify( data.slice(0,3)))
+        console.log('json...........',JSON.stringify( data.slice(0,3)))
       }
+
     useEffect(()=>{
         getData()
     },[])
@@ -22,14 +32,17 @@ const DashBoard = ({navigation, route}) =>{
       LogBox.ignoreLogs(["VirtualizedLists should never be nested"])
     },[])
 
+    console.log('HomeScreen----------------------->', testID);
+ 
     return(
         <ScrollView 
             style={styles.homePage} 
             showsVerticalScrollIndicator={false}
-            nestedScrollEnabled={true} >
+            testID={'HomeScreen'}
+            >
 					<View style={{justifyContent:'space-between', flexDirection:'row'}}>
-          <Text style={styles.himeTitle}>Hii {val[0].charAt(0).toUpperCase() + val[0].slice(1)}</Text>
-				  <TouchableOpacity style={{
+          <Text style={styles.himeTitle}>Welcome</Text>
+				  <TouchableOpacity testID="logout-btn" style={{
 					  flex: 0.5, 
 					  backgroundColor:'#fff', 
             marginTop: 30, 
@@ -38,7 +51,7 @@ const DashBoard = ({navigation, route}) =>{
             justifyContent: 'space-around',
             borderRadius: 10
 				  }}
-				 	  onPress={()=>navigation.goBack()}
+				 	  onPress={()=>logout()}
 				  >
 					<Text style={{color:'black', fontSize:20, padding: 8}}>Logout</Text>
           <LogOut 
@@ -71,6 +84,7 @@ const DashBoard = ({navigation, route}) =>{
          <FlatList
            data = {(data || []).filter(c => (c?.name || '').toLowerCase().includes(filter.toLowerCase()))}
            keyExtractor = {item => item.id}
+           scrollEnabled={false}
            renderItem = {({item}) => (
             <View style={styles.card}>
                 <Text><Text style={{fontFamily:'Gordita-Bold', color:'black'}}>Name:</Text> {item.name}</Text>
@@ -82,4 +96,13 @@ const DashBoard = ({navigation, route}) =>{
         </ScrollView>
     )
 }
-export default DashBoard
+export default connect(
+	(state) => {
+		return {
+			user: state?.login?.user?.user || {},
+      securityToken: state?.login?.user?.accessToken || null,
+		}
+	}, {
+    logout
+}
+)(DashBoard);
